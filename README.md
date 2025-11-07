@@ -18,3 +18,7 @@ python main.py
 ```bash
 streamlit run app.py
 ```
+
+<p align="center">
+  <img src="imgs/1.png" alt="项目界面预览" width="700">
+</p>
