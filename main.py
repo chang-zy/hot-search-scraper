@@ -19,12 +19,11 @@ from datetime import datetime
 
 from storage import HotItemsHistoryDB
 
-# 把你四个 class 都引进来
 from scraper.zhihu import ZhihuHotSpider
 from scraper.weibo import WeiboHotSpider
 from scraper.douyin import DouyinHotSpider
 from scraper.baidu import BaiduHotSpider
-
+from scraper.cailian import CailianHotSpider
 
 # 一个注册表，方便后面循环
 SPIDER_REGISTRY = {
@@ -32,6 +31,7 @@ SPIDER_REGISTRY = {
     "weibo": WeiboHotSpider,
     "douyin": DouyinHotSpider,
     "baidu": BaiduHotSpider,
+    "cailian": CailianHotSpider,
 }
 
 
@@ -40,7 +40,7 @@ def parse_args():
     p.add_argument("--db", default="hot.db", help="SQLite 文件路径")
     p.add_argument(
         "--providers",
-        default="zhihu,weibo,douyin,baidu",
+        default="zhihu,weibo,douyin,baidu,cailian",
         help="要抓取的平台，逗号分隔，可选：zhihu,weibo,douyin,baidu",
     )
     p.add_argument(
@@ -87,18 +87,16 @@ def run_once(db_path: str, provider_names: list[str]):
             topic_key_field: str | None = None
 
             if name == "weibo":
-                # 微博有 word_scheme，可以当成 topic_key
                 topic_key_field = "word_scheme"
                 extra_fields = ["word_scheme"]
             elif name == "douyin":
-                # 抖音有 sentence_id，可作为唯一键
                 topic_key_field = "sentence_id"
             elif name == "baidu":
-                # 百度有 avatar_url，可以多存一下
                 extra_fields = ["avatar_url"]
             elif name == "zhihu":
-                # 我们刚刚给知乎加了 avatar_url
                 extra_fields = ["avatar_url"]
+            elif name == "cailian":
+                extra_fields = ["id", "ctime", "level", "comment_num"]
 
             try:
                 inserted = db.upsert_history(
